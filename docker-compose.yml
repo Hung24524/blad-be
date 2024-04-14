@@ -1,0 +1,26 @@
+version: "3"
+services:
+  redis:
+    image: redis/redis-stack-server:7.2.0-v6
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  blab_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT}:${PORT}"
+    network_mode: host
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    restart: always
+volumes:
+  redis_data:
